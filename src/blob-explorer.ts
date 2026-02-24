@@ -241,6 +241,10 @@ export class BlobExplorerView extends ItemView {
 		el.createSpan({ cls: "blob-file-name", text: filename });
 		el.createSpan({ cls: "blob-file-size", text: formatSize(blob.size) });
 
+		el.addEventListener("click", () => {
+			window.open(blob.url, "_blank");
+		});
+
 		const actions = el.createDiv("blob-file-actions");
 
 		// Copy URL

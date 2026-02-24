@@ -30,6 +30,7 @@
 .blob-explorer-actions button {
 	background: none;
 	border: none;
+	box-shadow: none;
 	color: var(--text-muted);
 	cursor: pointer;
 	padding: 2px 4px;
@@ -44,7 +45,7 @@
 .blob-explorer-tree {
 	flex: 1;
 	overflow-y: auto;
-	padding: 4px 0;
+	padding: 4px 0px 0;
 }
 
 .blob-explorer-empty,
@@ -71,12 +72,12 @@
 .blob-folder-header {
 	display: flex;
 	align-items: center;
-	padding: 2px 0 2px calc(var(--indent, 0) * 16px + 8px);
+	padding: 4px 20px 4px calc(var(--indent, 0) * 16px + 8px);
 	cursor: pointer;
 	font-size: var(--font-ui-small);
 	color: var(--text-normal);
 	border-radius: var(--radius-s);
-	margin: 0 4px;
+	margin: 1px 4px;
 }
 
 .blob-folder-header:hover {
@@ -125,11 +126,11 @@
 .blob-file {
 	display: flex;
 	align-items: center;
-	padding: 2px 8px 2px calc(var(--indent, 0) * 16px + 8px);
+	padding: 4px 8px 4px calc(var(--indent, 0) * 16px + 8px);
 	font-size: var(--font-ui-small);
 	border-radius: var(--radius-s);
-	margin: 0 4px;
-	cursor: default;
+	margin: 1px 4px;
+	cursor: pointer;
 }
 
 .blob-file:hover {
@@ -177,6 +178,7 @@
 .blob-file-actions button {
 	background: none;
 	border: none;
+	box-shadow: none;
 	color: var(--text-muted);
 	cursor: pointer;
 	padding: 1px 3px;
