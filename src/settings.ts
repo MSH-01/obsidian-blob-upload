@@ -9,6 +9,7 @@ export interface BlobUploadSettings {
 	slugifyFilenames: boolean;
 	allowOverwrite: boolean;
 	maxFileSizeMB: number;
+	explorerViewMode: "grid" | "list";
 }
 
 export const DEFAULT_SETTINGS: BlobUploadSettings = {
@@ -19,6 +20,7 @@ export const DEFAULT_SETTINGS: BlobUploadSettings = {
 	slugifyFilenames: true,
 	allowOverwrite: true,
 	maxFileSizeMB: 50,
+	explorerViewMode: "grid",
 };
 
 export class BlobUploadSettingTab extends PluginSettingTab {
