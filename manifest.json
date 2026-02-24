@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-blob-upload",
 	"name": "Blob Upload",
-	"version": "1.0.0",
+	"version": "1.2.0",
 	"minAppVersion": "1.0.0",
 	"description": "Upload pasted/dropped images to Vercel Blob Storage and insert the live URL.",
 	"author": "msh",
