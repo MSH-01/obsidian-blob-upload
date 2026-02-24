@@ -6,7 +6,7 @@ An Obsidian plugin that uploads pasted and dropped images to Vercel Blob Storage
 
 - **Paste upload** — screenshot or copied image pastes upload automatically
 - **Drop upload** — drag files from Finder/Explorer into the editor
-- **Blob explorer** — sidebar panel showing all uploaded files in a folder tree with copy URL, copy markdown, and delete actions
+- **Blob explorer** — sidebar panel showing all uploaded files in a collapsible folder tree with copy URL, copy markdown, and delete actions. Click any file to open it in the browser. Drag and drop files onto the panel to upload, or drop directly onto a folder to upload into that path.
 - **Context menu** — right-click a local image reference (`![[image.png]]`) to upload it
 - **Batch upload** — command to upload all local image references in the current note
 - **File picker** — command to upload files via a system file dialog
@@ -19,10 +19,16 @@ npm install
 npm run build
 ```
 
-This outputs `main.js` to your vault's `.obsidian/plugins/obsidian-blob-upload/` directory. You also need to copy `manifest.json` and `styles.css` there:
+This outputs `main.js` into the repo root. The easiest setup is to symlink the repo as your plugin directory:
 
 ```sh
-cp manifest.json styles.css /path/to/vault/.obsidian/plugins/obsidian-blob-upload/
+ln -s /path/to/obsidian-blob-upload /path/to/vault/.obsidian/plugins/obsidian-blob-upload
+```
+
+Or copy the three required files manually:
+
+```sh
+cp main.js manifest.json styles.css /path/to/vault/.obsidian/plugins/obsidian-blob-upload/
 ```
 
 For development with auto-rebuild on changes:
@@ -64,7 +70,7 @@ The plugin uses Obsidian's `requestUrl` to call the Vercel Blob REST API directl
 4. `PUT` the file to `blob.vercel-storage.com/{pathname}` with the token
 5. Replace the placeholder with `![filename](blob-url)`
 
-**Blob explorer:** A sidebar view (cloud icon in ribbon, or command palette) that lists all blobs under your configured prefix as a collapsible folder tree. Each file shows its size and has actions to copy the URL, copy as markdown, or delete.
+**Blob explorer:** A sidebar view (cloud icon in ribbon, or command palette) that lists all blobs under your configured prefix as a collapsible folder tree. Each file shows its size and has actions to copy the URL, copy as markdown, or delete. Click a file to open it in the browser. You can also drag files from your OS directly onto the explorer panel to upload — drop onto a specific folder to upload into that path, or drop on the background to upload to the root prefix.
 
 ## Structure
 
