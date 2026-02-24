@@ -1,6 +1,7 @@
 import { ItemView, Notice, WorkspaceLeaf, setIcon } from "obsidian";
 import type BlobUploadPlugin from "./main";
-import { BlobEntry, listBlobs, deleteBlob } from "./uploader";
+import { BlobEntry, listBlobs, deleteBlob, uploadToBlob } from "./uploader";
+import { slugify, buildBlobPathname } from "./utils";
 
 export const BLOB_EXPLORER_VIEW = "blob-explorer-view";
 
@@ -104,7 +105,8 @@ export class BlobExplorerView extends ItemView {
 		this.refreshBtn.addEventListener("click", () => this.refresh());
 
 		// Tree area
-		container.createDiv("blob-explorer-tree");
+		const tree = container.createDiv("blob-explorer-tree");
+		this.setupDropZone(tree);
 
 		// Stats footer
 		container.createDiv("blob-explorer-stats");
@@ -200,7 +202,10 @@ export class BlobExplorerView extends ItemView {
 		folder: TreeFolder,
 		depth: number,
 		startExpanded = false,
+		parentPath = "",
 	) {
+		const folderPath = parentPath ? `${parentPath}/${folder.name}` : folder.name;
+
 		const el = parent.createDiv("blob-folder");
 		if (!startExpanded) el.addClass("is-collapsed");
 
@@ -220,10 +225,13 @@ export class BlobExplorerView extends ItemView {
 			el.toggleClass("is-collapsed", !el.hasClass("is-collapsed"));
 		});
 
+		// Drop onto folder uploads into that path
+		this.setupFolderDrop(header, folderPath);
+
 		const children = el.createDiv("blob-folder-children");
 
 		for (const child of folder.children) {
-			this.renderFolder(children, child, depth + 1);
+			this.renderFolder(children, child, depth + 1, false, folderPath);
 		}
 		for (const file of folder.files) {
 			this.renderFile(children, file, depth + 1);
@@ -279,6 +287,105 @@ export class BlobExplorerView extends ItemView {
 				new Notice(`Delete failed: ${msg}`);
 			}
 		});
+	}
+
+	private setupFolderDrop(header: HTMLElement, folderPath: string) {
+		header.addEventListener("dragover", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+		});
+
+		header.addEventListener("dragenter", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			header.addClass("is-drop-target");
+		});
+
+		header.addEventListener("dragleave", (e) => {
+			e.stopPropagation();
+			header.removeClass("is-drop-target");
+		});
+
+		header.addEventListener("drop", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			header.removeClass("is-drop-target");
+
+			const files = e.dataTransfer?.files;
+			if (!files || files.length === 0) return;
+			this.handleDrop(files, folderPath);
+		});
+	}
+
+	private setupDropZone(el: HTMLElement) {
+		let dragCounter = 0;
+
+		el.addEventListener("dragover", (e) => {
+			e.preventDefault();
+			if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+		});
+
+		el.addEventListener("dragenter", (e) => {
+			e.preventDefault();
+			dragCounter++;
+			el.addClass("is-drop-target");
+		});
+
+		el.addEventListener("dragleave", () => {
+			dragCounter--;
+			if (dragCounter === 0) el.removeClass("is-drop-target");
+		});
+
+		el.addEventListener("drop", (e) => {
+			e.preventDefault();
+			dragCounter = 0;
+			el.removeClass("is-drop-target");
+
+			const files = e.dataTransfer?.files;
+			if (!files || files.length === 0) return;
+			this.handleDrop(files, "");
+		});
+	}
+
+	private async handleDrop(files: FileList, targetPath: string) {
+		const { settings } = this.plugin;
+		if (!settings.token) {
+			new Notice("Blob token not configured");
+			return;
+		}
+
+		const maxBytes = settings.maxFileSizeMB * 1024 * 1024;
+		let uploaded = 0;
+
+		for (let i = 0; i < files.length; i++) {
+			const file = files[i];
+
+			if (file.size > maxBytes) {
+				new Notice(`"${file.name}" exceeds ${settings.maxFileSizeMB} MB limit`);
+				continue;
+			}
+
+			const filename = settings.slugifyFilenames ? slugify(file.name) : file.name;
+			const pathname = targetPath
+				? [targetPath, filename].join("/")
+				: buildBlobPathname(settings.basePathPrefix, "", filename);
+
+			try {
+				new Notice(`Uploading ${filename}...`);
+				const buf = await file.arrayBuffer();
+				await uploadToBlob(buf, pathname, filename, settings);
+				uploaded++;
+			} catch (err) {
+				const msg = err instanceof Error ? err.message : String(err);
+				new Notice(`Failed to upload "${file.name}": ${msg}`);
+			}
+		}
+
+		if (uploaded > 0) {
+			new Notice(`Uploaded ${uploaded} file(s)`);
+			await this.refresh();
+		}
 	}
 
 	private getFileIcon(pathname: string): string {

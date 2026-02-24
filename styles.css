@@ -191,6 +191,21 @@
 	background: var(--background-modifier-hover);
 }
 
+/* Drop target — tree background */
+.blob-explorer-tree.is-drop-target {
+	background: var(--background-modifier-hover);
+	outline: 2px dashed var(--text-accent);
+	outline-offset: -4px;
+	border-radius: var(--radius-s);
+}
+
+/* Drop target — folder row */
+.blob-folder-header.is-drop-target {
+	background: var(--background-modifier-hover);
+	outline: 2px dashed var(--text-accent);
+	outline-offset: -2px;
+}
+
 /* Spinning refresh icon */
 @keyframes blob-spin {
 	to { transform: rotate(360deg); }
