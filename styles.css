@@ -1,1 +1,199 @@
-/* Blob Upload plugin — no custom styles needed yet */
+.blob-explorer-container {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.blob-explorer-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--background-modifier-border);
+	flex-shrink: 0;
+}
+
+.blob-explorer-header .blob-explorer-title {
+	font-size: var(--font-ui-small);
+	font-weight: var(--font-semibold);
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.blob-explorer-actions {
+	display: flex;
+	gap: 4px;
+}
+
+.blob-explorer-actions button {
+	background: none;
+	border: none;
+	color: var(--text-muted);
+	cursor: pointer;
+	padding: 2px 4px;
+	border-radius: var(--radius-s);
+}
+
+.blob-explorer-actions button:hover {
+	color: var(--text-normal);
+	background: var(--background-modifier-hover);
+}
+
+.blob-explorer-tree {
+	flex: 1;
+	overflow-y: auto;
+	padding: 4px 0;
+}
+
+.blob-explorer-empty,
+.blob-explorer-loading {
+	padding: 24px 16px;
+	text-align: center;
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+}
+
+.blob-explorer-stats {
+	padding: 6px 12px;
+	border-top: 1px solid var(--background-modifier-border);
+	font-size: var(--font-ui-smaller);
+	color: var(--text-faint);
+	flex-shrink: 0;
+}
+
+/* Folder nodes */
+.blob-folder {
+	user-select: none;
+}
+
+.blob-folder-header {
+	display: flex;
+	align-items: center;
+	padding: 2px 0 2px calc(var(--indent, 0) * 16px + 8px);
+	cursor: pointer;
+	font-size: var(--font-ui-small);
+	color: var(--text-normal);
+	border-radius: var(--radius-s);
+	margin: 0 4px;
+}
+
+.blob-folder-header:hover {
+	background: var(--background-modifier-hover);
+}
+
+.blob-folder-icon {
+	width: 16px;
+	height: 16px;
+	margin-right: 4px;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-faint);
+	transition: transform 100ms ease;
+}
+
+.blob-folder.is-collapsed > .blob-folder-header .blob-folder-icon {
+	transform: rotate(-90deg);
+}
+
+.blob-folder-name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.blob-folder-count {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-faint);
+	margin-left: 6px;
+	flex-shrink: 0;
+}
+
+.blob-folder-children {
+	display: block;
+}
+
+.blob-folder.is-collapsed > .blob-folder-children {
+	display: none;
+}
+
+/* File nodes */
+.blob-file {
+	display: flex;
+	align-items: center;
+	padding: 2px 8px 2px calc(var(--indent, 0) * 16px + 8px);
+	font-size: var(--font-ui-small);
+	border-radius: var(--radius-s);
+	margin: 0 4px;
+	cursor: default;
+}
+
+.blob-file:hover {
+	background: var(--background-modifier-hover);
+}
+
+.blob-file-icon {
+	width: 16px;
+	height: 16px;
+	margin-right: 4px;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-faint);
+}
+
+.blob-file-name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--text-normal);
+}
+
+.blob-file-size {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-faint);
+	margin-left: 6px;
+	flex-shrink: 0;
+}
+
+.blob-file-actions {
+	display: flex;
+	gap: 2px;
+	margin-left: 4px;
+	opacity: 0;
+	flex-shrink: 0;
+}
+
+.blob-file:hover .blob-file-actions {
+	opacity: 1;
+}
+
+.blob-file-actions button {
+	background: none;
+	border: none;
+	color: var(--text-muted);
+	cursor: pointer;
+	padding: 1px 3px;
+	border-radius: var(--radius-s);
+	font-size: var(--font-ui-smaller);
+}
+
+.blob-file-actions button:hover {
+	color: var(--text-normal);
+	background: var(--background-modifier-hover);
+}
+
+/* Spinning refresh icon */
+@keyframes blob-spin {
+	to { transform: rotate(360deg); }
+}
+
+.blob-explorer-actions button.is-loading svg {
+	animation: blob-spin 0.8s linear infinite;
+}

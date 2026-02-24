@@ -1,9 +1,6 @@
 import esbuild from "esbuild";
 import { existsSync, mkdirSync } from "fs";
 
-const outdir = "../.obsidian/plugins/obsidian-blob-upload";
-if (!existsSync(outdir)) mkdirSync(outdir, { recursive: true });
-
 const watch = process.argv.includes("--watch");
 
 const ctx = await esbuild.context({
@@ -15,7 +12,7 @@ const ctx = await esbuild.context({
 	logLevel: "info",
 	sourcemap: "inline",
 	treeShaking: true,
-	outfile: `${outdir}/main.js`,
+	outfile: "main.js",
 });
 
 if (watch) {

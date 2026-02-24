@@ -17,6 +17,7 @@ import {
 	isImageFile,
 	slugify,
 } from "./utils";
+import { BlobExplorerView, BLOB_EXPLORER_VIEW } from "./blob-explorer";
 
 export default class BlobUploadPlugin extends Plugin {
 	settings: BlobUploadSettings = DEFAULT_SETTINGS;
@@ -24,6 +25,21 @@ export default class BlobUploadPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		this.addSettingTab(new BlobUploadSettingTab(this.app, this));
+
+		// Register blob explorer view
+		this.registerView(BLOB_EXPLORER_VIEW, (leaf) => new BlobExplorerView(leaf, this));
+
+		// Ribbon icon to open explorer
+		this.addRibbonIcon("cloud", "Open Blob Storage", () => {
+			this.activateExplorerView();
+		});
+
+		// Command to open explorer
+		this.addCommand({
+			id: "open-blob-explorer",
+			name: "Open Blob Storage explorer",
+			callback: () => this.activateExplorerView(),
+		});
 
 		// Paste interception
 		this.registerEvent(
@@ -105,6 +121,34 @@ export default class BlobUploadPlugin extends Plugin {
 		});
 	}
 
+	onunload() {
+		this.app.workspace.detachLeavesOfType(BLOB_EXPLORER_VIEW);
+	}
+
+	async activateExplorerView() {
+		const existing = this.app.workspace.getLeavesOfType(BLOB_EXPLORER_VIEW);
+		if (existing.length > 0) {
+			this.app.workspace.revealLeaf(existing[0]);
+			return;
+		}
+		const leaf = this.app.workspace.getRightLeaf(false);
+		if (leaf) {
+			await leaf.setViewState({ type: BLOB_EXPLORER_VIEW, active: true });
+			this.app.workspace.revealLeaf(leaf);
+		}
+	}
+
+	/** Refresh the explorer view if it's open (called after uploads) */
+	refreshExplorer() {
+		const leaves = this.app.workspace.getLeavesOfType(BLOB_EXPLORER_VIEW);
+		for (const leaf of leaves) {
+			const view = leaf.view;
+			if (view instanceof BlobExplorerView) {
+				view.refresh();
+			}
+		}
+	}
+
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
@@ -157,6 +201,7 @@ export default class BlobUploadPlugin extends Plugin {
 			const markdown = `![${filename}](${result.url})`;
 			this.replacePlaceholder(editor, placeholder, markdown);
 			new Notice(`Uploaded ${filename}`);
+			this.refreshExplorer();
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : String(err);
 			this.replacePlaceholder(
@@ -336,5 +381,6 @@ export default class BlobUploadPlugin extends Plugin {
 
 		editor.setValue(currentContent);
 		new Notice(`Uploaded ${uploaded}/${refs.length} image(s)`);
+		this.refreshExplorer();
 	}
 }
