@@ -116,7 +116,7 @@
 .blob-explorer-content {
 	flex: 1;
 	overflow-y: auto;
-	padding: 6px;
+	padding: 0;
 }
 
 /* Empty & loading states */

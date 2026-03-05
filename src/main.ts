@@ -30,14 +30,14 @@ export default class BlobUploadPlugin extends Plugin {
 		this.registerView(BLOB_EXPLORER_VIEW, (leaf) => new BlobExplorerView(leaf, this));
 
 		// Ribbon icon to open explorer
-		this.addRibbonIcon("cloud", "Open Blob Storage", () => {
+		this.addRibbonIcon("cloud", "Open Storage", () => {
 			this.activateExplorerView();
 		});
 
 		// Command to open explorer
 		this.addCommand({
 			id: "open-blob-explorer",
-			name: "Open Blob Storage explorer",
+			name: "Open Storage explorer",
 			callback: () => this.activateExplorerView(),
 		});
 
@@ -83,7 +83,7 @@ export default class BlobUploadPlugin extends Plugin {
 				if (!localRef) return;
 
 				menu.addItem((item) => {
-					item.setTitle("Upload image to Blob Storage")
+					item.setTitle("Upload image to Storage")
 						.setIcon("upload-cloud")
 						.onClick(() => this.uploadLocalRef(localRef, editor));
 				});

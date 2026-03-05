@@ -1,6 +1,6 @@
 # Obsidian Blob Upload
 
-An Obsidian plugin that uploads pasted and dropped images to Vercel Blob Storage, inserting live URLs instead of saving files locally. Keeps your vault free of binary attachments.
+An Obsidian plugin that uploads pasted and dropped images to Vercel Storage, inserting live URLs instead of saving files locally. Keeps your vault free of binary attachments.
 
 ## Features
 

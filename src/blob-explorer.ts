@@ -79,7 +79,7 @@ export class BlobExplorerView extends ItemView {
 	}
 
 	getDisplayText(): string {
-		return "Blob Storage";
+		return "Storage";
 	}
 
 	getIcon(): string {
@@ -87,6 +87,7 @@ export class BlobExplorerView extends ItemView {
 	}
 
 	async onOpen() {
+		this.contentEl.style.padding = "0";
 		this.render();
 		await this.refresh();
 	}
@@ -102,7 +103,7 @@ export class BlobExplorerView extends ItemView {
 
 		// Header
 		const header = container.createDiv("blob-explorer-header");
-		header.createSpan({ cls: "blob-explorer-title", text: "Blob Storage" });
+		header.createSpan({ cls: "blob-explorer-title", text: "Storage" });
 
 		const actions = header.createDiv("blob-explorer-actions");
 

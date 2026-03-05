@@ -3,7 +3,7 @@
 	"name": "Blob Upload",
 	"version": "1.2.0",
 	"minAppVersion": "1.0.0",
-	"description": "Upload pasted/dropped images to Vercel Blob Storage and insert the live URL.",
+	"description": "Upload pasted/dropped images to Vercel Storage and insert the live URL.",
 	"author": "msh",
 	"isDesktopOnly": true
 }
