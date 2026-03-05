@@ -1,4 +1,4 @@
-import { ItemView, Notice, WorkspaceLeaf, setIcon } from "obsidian";
+import { App, ItemView, Modal, Notice, WorkspaceLeaf, setIcon } from "obsidian";
 import type BlobUploadPlugin from "./main";
 import { BlobEntry, listBlobs, deleteBlob, uploadToBlob } from "./uploader";
 import { slugify, buildBlobPathname, isImageFile } from "./utils";
@@ -27,6 +27,9 @@ function buildTree(blobs: BlobEntry[]): TreeFolder {
 			}
 			current = child;
 		}
+
+		// Hide .keep placeholder files used to materialize empty folders
+		if (filename === ".keep") continue;
 
 		current.files.push(blob);
 	}
@@ -112,6 +115,12 @@ export class BlobExplorerView extends ItemView {
 		});
 		this.updateToggleIcon();
 		this.toggleBtn.addEventListener("click", () => this.toggleViewMode());
+
+		const newFolderBtn = actions.createEl("button", {
+			attr: { "aria-label": "New folder" },
+		});
+		setIcon(newFolderBtn, "folder-plus");
+		newFolderBtn.addEventListener("click", () => this.promptNewFolder());
 
 		this.refreshBtn = actions.createEl("button", {
 			attr: { "aria-label": "Refresh" },
@@ -676,6 +685,36 @@ export class BlobExplorerView extends ItemView {
 		}
 	}
 
+	private promptNewFolder() {
+		new NewFolderModal(this.app, async (name) => {
+			await this.createFolder(name);
+		}).open();
+	}
+
+	private async createFolder(name: string) {
+		const { settings } = this.plugin;
+		if (!settings.token) {
+			new Notice("Blob token not configured");
+			return;
+		}
+
+		const folderName = settings.slugifyFilenames ? slugify(name) : name;
+		const pathname = [...this.currentPath, folderName, ".keep"]
+			.filter(Boolean)
+			.join("/");
+
+		try {
+			new Notice(`Creating folder "${folderName}"...`);
+			const buf = new Uint8Array([0]).buffer;
+			await uploadToBlob(buf, pathname, ".keep", settings);
+			new Notice(`Folder "${folderName}" created`);
+			await this.refresh();
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : String(err);
+			new Notice(`Failed to create folder: ${msg}`);
+		}
+	}
+
 	private getFileIcon(pathname: string): string {
 		const ext = pathname.split(".").pop()?.toLowerCase() ?? "";
 		switch (ext) {
@@ -698,5 +737,50 @@ export class BlobExplorerView extends ItemView {
 			default:
 				return "file";
 		}
+	}
+}
+
+class NewFolderModal extends Modal {
+	private onSubmit: (name: string) => void;
+
+	constructor(app: App, onSubmit: (name: string) => void) {
+		super(app);
+		this.onSubmit = onSubmit;
+	}
+
+	onOpen() {
+		const { contentEl } = this;
+		contentEl.createEl("h3", { text: "New folder" });
+
+		const input = contentEl.createEl("input", {
+			type: "text",
+			placeholder: "Folder name",
+			cls: "blob-new-folder-input",
+		});
+		input.style.width = "100%";
+
+		const submit = () => {
+			const name = input.value.trim();
+			if (!name) return;
+			this.close();
+			this.onSubmit(name);
+		};
+
+		input.addEventListener("keydown", (e) => {
+			if (e.key === "Enter") submit();
+		});
+
+		const btn = contentEl.createEl("button", {
+			text: "Create",
+			cls: "mod-cta",
+		});
+		btn.style.marginTop = "12px";
+		btn.addEventListener("click", submit);
+
+		input.focus();
+	}
+
+	onClose() {
+		this.contentEl.empty();
 	}
 }
